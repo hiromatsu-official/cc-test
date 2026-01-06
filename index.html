@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>じゃんけんゲーム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .choice-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            font-size: 3em;
+            padding: 20px 30px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .choice-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .choice-btn:active {
+            transform: translateY(-2px);
+        }
+
+        .result-area {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            min-height: 200px;
+        }
+
+        .choices {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 20px 0;
+            font-size: 4em;
+        }
+
+        .player-choice, .computer-choice {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .label {
+            font-size: 0.3em;
+            color: #666;
+            font-weight: bold;
+        }
+
+        .vs {
+            font-size: 0.5em;
+            color: #999;
+            font-weight: bold;
+        }
+
+        .result-message {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .win {
+            color: #27ae60;
+            background: #d5f4e6;
+        }
+
+        .lose {
+            color: #e74c3c;
+            background: #fadbd8;
+        }
+
+        .draw {
+            color: #f39c12;
+            background: #fdebd0;
+        }
+
+        .score {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+        }
+
+        .score-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .score-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .score-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✊✋✌️ じゃんけんゲーム</h1>
+
+        <div class="buttons">
+            <button class="choice-btn" onclick="play('rock')">✊</button>
+            <button class="choice-btn" onclick="play('scissors')">✌️</button>
+            <button class="choice-btn" onclick="play('paper')">✋</button>
+        </div>
+
+        <div class="result-area">
+            <div id="choices" class="choices" style="display: none;">
+                <div class="player-choice">
+                    <span class="label">あなた</span>
+                    <span id="playerChoice"></span>
+                </div>
+                <span class="vs">VS</span>
+                <div class="computer-choice">
+                    <span class="label">コンピュータ</span>
+                    <span id="computerChoice"></span>
+                </div>
+            </div>
+            <div id="result" class="result-message"></div>
+            <div class="score">
+                <div class="score-item">
+                    <span class="score-label">勝ち</span>
+                    <span class="score-value" id="wins">0</span>
+                </div>
+                <div class="score-item">
+                    <span class="score-label">負け</span>
+                    <span class="score-value" id="losses">0</span>
+                </div>
+                <div class="score-item">
+                    <span class="score-label">あいこ</span>
+                    <span class="score-value" id="draws">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let wins = 0;
+        let losses = 0;
+        let draws = 0;
+
+        const choices = {
+            rock: { emoji: '✊', name: 'グー' },
+            scissors: { emoji: '✌️', name: 'チョキ' },
+            paper: { emoji: '✋', name: 'パー' }
+        };
+
+        function play(playerChoice) {
+            // コンピュータのランダムな選択
+            const options = ['rock', 'scissors', 'paper'];
+            const computerChoice = options[Math.floor(Math.random() * options.length)];
+
+            // 選択を表示
+            document.getElementById('playerChoice').textContent = choices[playerChoice].emoji;
+            document.getElementById('computerChoice').textContent = choices[computerChoice].emoji;
+            document.getElementById('choices').style.display = 'flex';
+
+            // 勝敗判定
+            let result = '';
+            let resultClass = '';
+
+            if (playerChoice === computerChoice) {
+                result = 'あいこ！';
+                resultClass = 'draw';
+                draws++;
+                document.getElementById('draws').textContent = draws;
+            } else if (
+                (playerChoice === 'rock' && computerChoice === 'scissors') ||
+                (playerChoice === 'scissors' && computerChoice === 'paper') ||
+                (playerChoice === 'paper' && computerChoice === 'rock')
+            ) {
+                result = 'あなたの勝ち！🎉';
+                resultClass = 'win';
+                wins++;
+                document.getElementById('wins').textContent = wins;
+            } else {
+                result = 'あなたの負け...😢';
+                resultClass = 'lose';
+                losses++;
+                document.getElementById('losses').textContent = losses;
+            }
+
+            // 結果を表示
+            const resultElement = document.getElementById('result');
+            resultElement.textContent = result;
+            resultElement.className = 'result-message ' + resultClass;
+        }
+    </script>
+</body>
+</html>
