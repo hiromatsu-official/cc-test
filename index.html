@@ -149,6 +149,35 @@
             font-weight: bold;
             color: #333;
         }
+
+        .janken-animation {
+            font-size: 5em;
+            margin: 30px 0;
+            animation: shuffle 0.3s infinite;
+        }
+
+        .janken-text {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-top: 20px;
+            animation: blink 0.6s infinite;
+        }
+
+        @keyframes shuffle {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -162,6 +191,10 @@
         </div>
 
         <div class="result-area">
+            <div id="jankenAnimation" class="hidden">
+                <div class="janken-animation" id="shuffleEmoji">✊</div>
+                <div class="janken-text">じゃんけん...</div>
+            </div>
             <div id="choices" class="choices" style="display: none;">
                 <div class="player-choice">
                     <span class="label">あなた</span>
@@ -203,44 +236,68 @@
         };
 
         function play(playerChoice) {
-            // コンピュータのランダムな選択
-            const options = ['rock', 'scissors', 'paper'];
-            const computerChoice = options[Math.floor(Math.random() * options.length)];
+            // 結果エリアをリセット
+            document.getElementById('choices').style.display = 'none';
+            document.getElementById('result').textContent = '';
+            document.getElementById('result').className = 'result-message';
 
-            // 選択を表示
-            document.getElementById('playerChoice').textContent = choices[playerChoice].emoji;
-            document.getElementById('computerChoice').textContent = choices[computerChoice].emoji;
-            document.getElementById('choices').style.display = 'flex';
+            // じゃんけんアニメーションを表示
+            const animationElement = document.getElementById('jankenAnimation');
+            const shuffleEmoji = document.getElementById('shuffleEmoji');
+            animationElement.classList.remove('hidden');
 
-            // 勝敗判定
-            let result = '';
-            let resultClass = '';
+            // 絵文字をシャッフル
+            const emojiList = ['✊', '✌️', '✋'];
+            let shuffleIndex = 0;
+            const shuffleInterval = setInterval(() => {
+                shuffleEmoji.textContent = emojiList[shuffleIndex % 3];
+                shuffleIndex++;
+            }, 100);
 
-            if (playerChoice === computerChoice) {
-                result = 'あいこ！';
-                resultClass = 'draw';
-                draws++;
-                document.getElementById('draws').textContent = draws;
-            } else if (
-                (playerChoice === 'rock' && computerChoice === 'scissors') ||
-                (playerChoice === 'scissors' && computerChoice === 'paper') ||
-                (playerChoice === 'paper' && computerChoice === 'rock')
-            ) {
-                result = 'あなたの勝ち！🎉';
-                resultClass = 'win';
-                wins++;
-                document.getElementById('wins').textContent = wins;
-            } else {
-                result = 'あなたの負け...😢';
-                resultClass = 'lose';
-                losses++;
-                document.getElementById('losses').textContent = losses;
-            }
+            // 1秒後に結果を表示
+            setTimeout(() => {
+                clearInterval(shuffleInterval);
+                animationElement.classList.add('hidden');
 
-            // 結果を表示
-            const resultElement = document.getElementById('result');
-            resultElement.textContent = result;
-            resultElement.className = 'result-message ' + resultClass;
+                // コンピュータのランダムな選択
+                const options = ['rock', 'scissors', 'paper'];
+                const computerChoice = options[Math.floor(Math.random() * options.length)];
+
+                // 選択を表示
+                document.getElementById('playerChoice').textContent = choices[playerChoice].emoji;
+                document.getElementById('computerChoice').textContent = choices[computerChoice].emoji;
+                document.getElementById('choices').style.display = 'flex';
+
+                // 勝敗判定
+                let result = '';
+                let resultClass = '';
+
+                if (playerChoice === computerChoice) {
+                    result = 'あいこ！';
+                    resultClass = 'draw';
+                    draws++;
+                    document.getElementById('draws').textContent = draws;
+                } else if (
+                    (playerChoice === 'rock' && computerChoice === 'scissors') ||
+                    (playerChoice === 'scissors' && computerChoice === 'paper') ||
+                    (playerChoice === 'paper' && computerChoice === 'rock')
+                ) {
+                    result = 'あなたの勝ち！🎉';
+                    resultClass = 'win';
+                    wins++;
+                    document.getElementById('wins').textContent = wins;
+                } else {
+                    result = 'あなたの負け...😢';
+                    resultClass = 'lose';
+                    losses++;
+                    document.getElementById('losses').textContent = losses;
+                }
+
+                // 結果を表示
+                const resultElement = document.getElementById('result');
+                resultElement.textContent = result;
+                resultElement.className = 'result-message ' + resultClass;
+            }, 1000);
         }
     </script>
 </body>
